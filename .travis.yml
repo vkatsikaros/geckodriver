@@ -64,4 +64,3 @@ deploy:
   on:
     tags: true
     repo: mozilla/geckodriver
-    condition: -n "$NAME"
