@@ -34,7 +34,7 @@ use webdriver::command::WebDriverCommand::{
     ExecuteScript, ExecuteAsyncScript, GetCookies, GetCookie, AddCookie,
     DeleteCookies, DeleteCookie, SetTimeouts, DismissAlert,
     AcceptAlert, GetAlertText, SendAlertText, TakeScreenshot, Extension,
-    SetWindowPosition, GetWindowPosition};
+    SetWindowPosition, GetWindowPosition, Status};
 use webdriver::command::{
     NewSessionParameters, GetParameters, WindowSizeParameters, SwitchToWindowParameters,
     SwitchToFrameParameters, LocatorParameters, JavascriptCommandParameters,
@@ -568,7 +568,7 @@ impl MarionetteSession {
             IsSelected(_) | GetElementAttribute(_, _) | GetElementProperty(_, _) |
             GetCSSValue(_, _) | GetElementText(_) |
             GetElementTagName(_) | IsEnabled(_) | ExecuteScript(_) | ExecuteAsyncScript(_) |
-            GetAlertText | TakeScreenshot => {
+            GetAlertText | TakeScreenshot | Status => {
                 let value = try_opt!(resp.result.find("value"),
                                      ErrorStatus::UnknownError,
                                      "Failed to find value field");
@@ -934,6 +934,7 @@ impl MarionetteCommand {
                 data.insert("full".to_string(), Json::Boolean(false));
                 (Some("takeScreenshot"), Some(Ok(data)))
             },
+            Status => (Some("status"), None),
             Extension(ref extension) => {
                 match extension {
                     &GeckoExtensionCommand::GetContext => (Some("getContext"), None),
