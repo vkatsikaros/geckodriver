@@ -415,30 +415,31 @@ impl MarionetteHandler {
 impl WebDriverHandler<GeckoExtensionRoute> for MarionetteHandler {
     fn handle_command(&mut self, _: &Option<Session>, mut msg: WebDriverMessage<GeckoExtensionRoute>) -> WebDriverResult<WebDriverResponse> {
         {
-            let mut new_capabilities = None;
             match self.connection.lock() {
-                Ok(ref connection) => {
-                    if connection.is_none() {
-                        match msg.command {
-                            NewSession(ref mut capabilities) => {
-                                new_capabilities = Some(capabilities);
-                            },
-                            _ => {
-                                return Err(WebDriverError::new(
-                                    ErrorStatus::UnknownError,
-                                    "Tried to run command without establishing a connection"));
+                Ok(ref mut connection) => {
+                    match msg.command {
+                        Status => {
+                            return Err(WebDriverError::new(
+                                ErrorStatus::UnknownError,
+                                "FAKE Status RESPONSE"));
+                        }
+                        NewSession(ref mut capabilities) => {
+                            if connection.is_none() {
+                                try!(self.create_connection(&msg.session_id, capabilities));
+                            }
+                        },
+                        _ => {
+                            return Err(WebDriverError::new(
+                                ErrorStatus::UnknownError,
+                                "Tried to run command without establishing a connection"));
                             }
                         }
-                    }
                 },
                 Err(_) => {
                     return Err(WebDriverError::new(
                         ErrorStatus::UnknownError,
                         "Failed to aquire Marionette connection"))
                 }
-            }
-            if let Some(capabilities) = new_capabilities {
-                try!(self.create_connection(&msg.session_id, capabilities));
             }
         }
 
